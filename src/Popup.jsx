@@ -11,6 +11,7 @@ const Popup = ({ isOpen, onClose }) => {
   const openPopup = async () => {
     try {
       const response = await axios.get(`http://localhost:5500/validateGiftCard/${giftCardNumber}`);
+      console.log(`Response: ${response}`)
       if (response.data.isValid) {
         setBalance(response.data.balance);
         setError(null);
