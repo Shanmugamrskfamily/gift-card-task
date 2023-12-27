@@ -6,12 +6,17 @@ const Popup = ({ isOpen, onClose }) => {
   const [error, setError] = useState(null);
   const [balance, setBalance] = useState(null);
   const [customerNumber, setCustomerNumber] = useState('');
+  const [amountToRedeem, setAmountToRedeem] = useState('');
   const [paymentApplied, setPaymentApplied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const openPopup = async () => {
     try {
-      const response = await axios.get(`http://localhost:5500/validateGiftCard/${giftCardNumber}`);
-      console.log(`Response: ${response}`)
+      setIsLoading(true);
+      const response = await axios.post('http://localhost:4045/api/redeem-gift-card', {
+        giftCardNumber: giftCardNumber,
+      });
+      console.log(`Response: ${response}`);
       if (response.data.isValid) {
         setBalance(response.data.balance);
         setError(null);
@@ -21,23 +26,38 @@ const Popup = ({ isOpen, onClose }) => {
       }
     } catch (error) {
       console.error('Error validating gift card:', error);
-      setError('An error occurred while validating the gift card');
+      setError('Invalid Gift Card Number.. Kindly Recheck!');
       setBalance(null);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const applyPayment = async () => {
     try {
-      const response = await axios.post('http://localhost:5500/applyPayment', {
-        customerNumber,
-        cardNumber: giftCardNumber,
-        balance,
+      setIsLoading(true);
+      if (!customerNumber || !giftCardNumber || !amountToRedeem) {
+        setError('Please fill in all the required fields');
+        return;
+      }
+      const response = await axios.put('http://localhost:4045/api/redeem-gift-card', {
+        customerNumber: customerNumber,
+        giftCardNumber: giftCardNumber,
+        amount: amountToRedeem,
       });
-      setPaymentApplied(true);
-      console.log(response.data.message);
+      if (response.data.success) {
+        setPaymentApplied(true);
+        setError(null);
+      } else {
+        setError('Failed to apply payment');
+        setPaymentApplied(false);
+      }
     } catch (error) {
       console.error('Error applying payment:', error);
-      setError('An error occurred while applying the payment');
+      setError('An error occurred while applying payment');
+      setPaymentApplied(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -62,10 +82,10 @@ const Popup = ({ isOpen, onClose }) => {
                 {error && <p className="mt-3 text-danger">{error}</p>}
                 {balance && <p className="mt-3">Gift card balance: {balance}</p>}
                 <div className='text-center mt-3'>
-                <button className="btn text-center btn-primary me-3" onClick={openPopup}>
-                        Redeem
-                        </button>
-                        </div>
+                  <button className="btn text-center btn-primary me-3" onClick={openPopup} disabled={isLoading}>
+                    Redeem
+                  </button>
+                </div>
                 {!paymentApplied && (
                   <>
                     <div className="form-group">
@@ -78,9 +98,19 @@ const Popup = ({ isOpen, onClose }) => {
                         onChange={(e) => setCustomerNumber(e.target.value)}
                       />
                     </div>
+                    <div className="form-group">
+                      <label htmlFor="amountToRedeem">Amount to Redeem:</label>
+                      <input
+                        type="text"
+                        className="form-control mt-4"
+                        id="amountToRedeem"
+                        value={amountToRedeem}
+                        onChange={(e) => setAmountToRedeem(e.target.value)}
+                      />
+                    </div>
                     <div className="text-center mt-3">
-                      <button className="btn btn-success" onClick={applyPayment}>
-                        Apply Payment
+                      <button className="btn btn-success" onClick={applyPayment} disabled={isLoading}>
+                        {isLoading ? 'Applying Payment...' : 'Apply Payment'}
                       </button>
                     </div>
                   </>
