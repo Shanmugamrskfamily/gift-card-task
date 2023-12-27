@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const Popup = ({ isOpen, onClose }) => {
+const Popup = ({ isOpen }) => {
   const [giftCardNumber, setGiftCardNumber] = useState('');
   const [error, setError] = useState(null);
   const [balance, setBalance] = useState(null);
@@ -101,7 +101,7 @@ const Popup = ({ isOpen, onClose }) => {
                     <div className="form-group">
                       <label htmlFor="amountToRedeem">Amount to Redeem:</label>
                       <input
-                        type="text"
+                        type="number"
                         className="form-control mt-4"
                         id="amountToRedeem"
                         value={amountToRedeem}
@@ -116,11 +116,6 @@ const Popup = ({ isOpen, onClose }) => {
                   </>
                 )}
                 {paymentApplied && <p className="mt-3 text-success">Payment applied successfully!</p>}
-                <div className="text-center mt-3">
-                  <button className="btn btn-secondary" onClick={onClose}>
-                    Close
-                  </button>
-                </div>
               </div>
             </div>
           </div>
