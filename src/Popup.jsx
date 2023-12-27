@@ -13,7 +13,7 @@ const Popup = ({ isOpen }) => {
   const openPopup = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post('http://localhost:4045/api/redeem-gift-card', {
+      const response = await axios.post('https://gift-card-redeem-mern-shanmugamrsk.onrender.com/api/redeem-gift-card', {
         giftCardNumber: giftCardNumber,
       });
       console.log(`Response: ${response}`);
@@ -40,7 +40,7 @@ const Popup = ({ isOpen }) => {
         setError('Please fill in all the required fields');
         return;
       }
-      const response = await axios.put('http://localhost:4045/api/redeem-gift-card', {
+      const response = await axios.put('https://gift-card-redeem-mern-shanmugamrsk.onrender.com/api/redeem-gift-card', {
         customerNumber: customerNumber,
         giftCardNumber: giftCardNumber,
         amount: amountToRedeem,
